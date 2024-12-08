@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
+    <title>Frog Wear Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+        }
+
+        .wear-container {
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+        
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        th {
+            background: #eee;
+            text-align: left;
+        }
+
+        .loading, .error {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .error {
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Frog Wear Store</h1>
+    <div class="wear-container">
+        <div id="status" class="loading">Загрузка данных...</div>
+        <table id="wearTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Размер</th>
+                    <th>Цена</th>
+                </tr>
+            </thead>
+            <tbody id="wearData">
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Замените URL на тот, по которому доступен ваш API
+            const apiUrl = 'http://158.160.85.0:5000/api/Wear/GetWears'; 
+            const statusDiv = document.getElementById('status');
+            const table = document.getElementById('wearTable');
+            const tableBody = document.getElementById('wearData');
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при получении данных: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Очистим статус
+                    statusDiv.textContent = '';
+                    if (data.length === 0) {
+                        statusDiv.textContent = 'Нет доступных товаров.';
+                        return;
+                    }
+
+                    // Показываем таблицу
+                    table.style.display = 'table';
+
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        
+                        const idCell = document.createElement('td');
+                        idCell.textContent = item.id;
+                        row.appendChild(idCell);
+                        
+                        const nameCell = document.createElement('td');
+                        nameCell.textContent = item.name;
+                        row.appendChild(nameCell);
+                        
+                        const sizeCell = document.createElement('td');
+                        sizeCell.textContent = item.size;
+                        row.appendChild(sizeCell);
+                        
+                        const priceCell = document.createElement('td');
+                        priceCell.textContent = item.price;
+                        row.appendChild(priceCell);
+                        
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    statusDiv.textContent = '';
+                    statusDiv.className = 'error';
+                    statusDiv.textContent = 'Произошла ошибка: ' + error.message;
+                });
+        });
+    </script>
+</body>
+</html>
